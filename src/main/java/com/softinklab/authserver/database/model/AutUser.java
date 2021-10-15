@@ -14,10 +14,18 @@ public class AutUser {
     private Integer userId;
 
     @Basic
-    @Column(name = "USERNAME")
+    @Column(name = "USERNAME", length = 320)
     private String username;
 
     @Basic
     @Column (name = "PASSWORD")
     private String password;
+
+    @Basic
+    @Column (name = "FIRST_NAME")
+    private String firstName;
+
+    @Basic
+    @Column (name = "LAST_NAME")
+    private String lastName;
 }

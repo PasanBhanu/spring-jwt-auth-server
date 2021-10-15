@@ -3,6 +3,7 @@ package com.softinklab.authserver.rest.request;
 import com.softinklab.authserver.rest.validation.annotation.MatchField;
 import lombok.Data;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -12,6 +13,7 @@ import javax.validation.constraints.Size;
 public class RegistrationRequest {
     @NotNull
     @Size(max = 320)
+    @Email
     private String username;
     @NotBlank
     @Size(min = 5, max = 25)
@@ -20,9 +22,9 @@ public class RegistrationRequest {
     private String confirmPassword;
 
     @NotBlank(message = "First Name is required")
-    @Size(max = 100)
+    @Size(max = 255)
     private String firstName;
     @NotBlank
-    @Size(max = 100)
+    @Size(max = 255)
     private String lastName;
 }

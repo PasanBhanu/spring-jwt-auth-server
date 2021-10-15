@@ -13,3 +13,11 @@ spring:
         dialect: org.hibernate.dialect.MySQL5InnoDBDialect
     hibernate:
       ddl-auto: update
+
+authserver:
+  registration:
+    enable: true
+    verification: false
+  login:
+    verification: false
+    2fa: false

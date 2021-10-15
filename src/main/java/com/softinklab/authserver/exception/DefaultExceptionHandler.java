@@ -1,5 +1,6 @@
 package com.softinklab.authserver.exception;
 
+import com.softinklab.authserver.exception.custom.DatabaseValidationException;
 import com.softinklab.authserver.rest.ErrorResponse;
 import com.softinklab.authserver.rest.validation.ValidationError;
 import com.softinklab.authserver.rest.validation.ValidationErrorResponse;
@@ -30,6 +31,12 @@ public class DefaultExceptionHandler {
         });
 
         ValidationErrorResponse response = new ValidationErrorResponse(400, "Request validation failed", validationErrors);
+        return new ResponseEntity<T>((T) response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(DatabaseValidationException.class)
+    protected <T extends ErrorResponse> ResponseEntity<T> handleDatabaseValidationException(DatabaseValidationException ex) {
+        ValidationErrorResponse response = new ValidationErrorResponse(ex.getStatus(), ex.getMessage(), ex.getValidationErrors());
         return new ResponseEntity<T>((T) response, HttpStatus.BAD_REQUEST);
     }
 }
