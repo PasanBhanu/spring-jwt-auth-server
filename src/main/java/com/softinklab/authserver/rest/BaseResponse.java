@@ -1,4 +1,4 @@
-package com.softinklab.authserver.common;
+package com.softinklab.authserver.rest;
 
 import lombok.Data;
 

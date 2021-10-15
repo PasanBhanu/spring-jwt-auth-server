@@ -1,4 +1,4 @@
-package com.softinklab.authserver.filters;
+package com.softinklab.authserver.filter;
 
 import org.springframework.web.filter.OncePerRequestFilter;
 

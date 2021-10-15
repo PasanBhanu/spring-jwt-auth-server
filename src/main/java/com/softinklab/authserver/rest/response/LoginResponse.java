@@ -1,6 +1,6 @@
 package com.softinklab.authserver.rest.response;
 
-import com.softinklab.authserver.common.BaseResponse;
+import com.softinklab.authserver.rest.BaseResponse;
 import lombok.Data;
 
 @Data

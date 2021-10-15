@@ -1,0 +1,7 @@
+Test Database
+
+Username: WJ1LtlzdkN
+Database name: WJ1LtlzdkN
+Password: 803fbTAcYy
+Server: remotemysql.com
+Port: 3306
