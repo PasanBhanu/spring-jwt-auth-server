@@ -1,16 +1,25 @@
 package com.softinklab.authserver.exception.custom;
 
+import com.softinklab.authserver.rest.validation.ValidationError;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.http.HttpStatus;
 
 import java.util.ArrayList;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class DatabaseValidationException extends RuntimeException{
+public class DatabaseValidationException extends RuntimeException {
     private Integer status = 400;
+    private HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
     private String message = "Database validation failed";
-    private ArrayList<com.softinklab.authserver.rest.validation.ValidationError> validationErrors;
+    private ArrayList<ValidationError> validationErrors = new ArrayList<>();
+
+    public DatabaseValidationException(Integer status, HttpStatus httpStatus, String message) {
+        this.httpStatus = httpStatus;
+        this.status = status;
+        this.message = message;
+    }
 }

@@ -37,6 +37,6 @@ public class DefaultExceptionHandler {
     @ExceptionHandler(DatabaseValidationException.class)
     protected <T extends ErrorResponse> ResponseEntity<T> handleDatabaseValidationException(DatabaseValidationException ex) {
         ValidationErrorResponse response = new ValidationErrorResponse(ex.getStatus(), ex.getMessage(), ex.getValidationErrors());
-        return new ResponseEntity<T>((T) response, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<T>((T) response, ex.getHttpStatus());
     }
 }
