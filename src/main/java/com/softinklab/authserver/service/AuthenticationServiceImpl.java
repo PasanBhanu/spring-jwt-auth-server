@@ -6,11 +6,13 @@ import com.softinklab.authserver.database.model.AutUser;
 import com.softinklab.authserver.database.repository.JwtAppRepository;
 import com.softinklab.authserver.database.repository.UserRepository;
 import com.softinklab.authserver.exception.custom.DatabaseValidationException;
+import com.softinklab.authserver.model.UserPrincipal;
 import com.softinklab.authserver.rest.request.LoginRequest;
 import com.softinklab.authserver.rest.response.LoginResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.Optional;
 
 @Service
@@ -48,7 +50,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         LoginResponse response = new LoginResponse();
         response.setAccessToken(cipheredToken);
         response.setRememberToken(sessionToken);
-        response.setUserData("");
+        response.setUserData(getUserData(loggedInUser));
         response.setStatus(200);
         response.setMessage("User authenticated");
 
@@ -66,5 +68,20 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         session.setAppId(jwtApp);
         session.setToken(cipheredToken);
         return session;
+    }
+
+    private HashMap<String, Object> getUserData(AutUser user) {
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("userId", user.getUserId());
+        map.put("username", user.getUsername());
+        map.put("firstName", user.getFirstName());
+        map.put("lastName", user.getLastName());
+        map.put("registeredAt", user.getRegisteredAt());
+        map.put("emailBlocked", user.getEmailBlocked());
+        map.put("smsBlocked", user.getSmsBlocked());
+        map.put("roles", user.getRoles());
+        map.put("permissions", user.getPermissions());
+
+        return map;
     }
 }

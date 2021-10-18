@@ -4,9 +4,10 @@ import com.softinklab.authserver.config.TokenConfig;
 import com.softinklab.authserver.database.model.AutSession;
 import com.softinklab.authserver.database.model.AutUser;
 import com.softinklab.authserver.database.repository.SessionRepository;
+import com.softinklab.authserver.exception.custom.AuthenticationFailedException;
 import com.softinklab.authserver.exception.custom.ServiceException;
-import io.jsonwebtoken.JwtBuilder;
-import io.jsonwebtoken.SignatureAlgorithm;
+import com.softinklab.authserver.model.UserPrincipal;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.impl.DefaultJwtBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -19,10 +20,7 @@ import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.UUID;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -50,6 +48,8 @@ public class TokenProviderImpl implements TokenProvider {
         claims.put("username", user.getUsername());
         claims.put("first_name", user.getFirstName());
         claims.put("last_name", user.getLastName());
+        claims.put("email_blocked", user.getEmailBlocked());
+        claims.put("sms_blocked", user.getSmsBlocked());
         claims.put("roles", user.getRoles());
         claims.put("permissions", user.getPermissions());
 
@@ -98,4 +98,38 @@ public class TokenProviderImpl implements TokenProvider {
         this.sessionRepository.save(session);
         return cipheredRememberToken;
     }
+
+    public Jws<Claims> validateToken(String token) {
+        log.debug("Attempting to validate token: {}", token);
+        try {
+            return Jwts.parser().setSigningKey(this.tokenConfig.getAuthKey().getBytes()).parseClaimsJws(token);
+        } catch (JwtException ex) {
+            log.error("Error parsing JWT token. ", ex.getMessage());
+            ArrayList<String> errors = new ArrayList();
+            errors.add("JWT token parsing failed");
+            throw new AuthenticationFailedException(401, HttpStatus.UNAUTHORIZED, "JWT token parsing failed", errors);
+        }
+    }
+
+    public Boolean forceValidateToken(String token) {
+        return false;
+    }
+
+    public UserPrincipal getUserPrincipalFromClaims(Jws<Claims> claims) {
+        UserPrincipal user = new UserPrincipal();
+        user.setUserId((Integer) claims.getBody().get("user_id"));
+        user.setUsername((String) claims.getBody().get("username"));
+        user.setFirstName((String) claims.getBody().get("first_name"));
+        user.setLastName((String) claims.getBody().get("last_name"));
+        user.setEmailBlocked((Boolean) claims.getBody().get("email_blocked"));
+        user.setSmsBlocked((Boolean) claims.getBody().get("sms_blocked"));
+        String rolesString = (String) claims.getBody().get("roles");
+        List<String> roles = new ArrayList<>(Arrays.asList(rolesString.split(",")));
+        user.setRoles(roles);
+        String permissionsString = (String) claims.getBody().get("permissions");
+        List<String> permissions = new ArrayList<>(Arrays.asList(permissionsString.split(",")));
+        user.setPermissions(permissions);
+        return user;
+    }
+
 }
