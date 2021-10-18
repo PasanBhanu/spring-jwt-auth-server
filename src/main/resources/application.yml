@@ -3,9 +3,9 @@ server:
 
 spring:
   datasource:
-    username: WJ1LtlzdkN
-    password: 803fbTAcYy
-    url: jdbc:mysql://remotemysql.com:3306/WJ1LtlzdkN
+    username: root
+    password:
+    url: jdbc:mysql://localhost:3306/authserver
 
   jpa:
     properties:
@@ -21,3 +21,11 @@ authserver:
   login:
     verification: false
     2fa: false
+  jwt:
+    secretKey: 1234567890123456
+    authKey: 1234567890123456
+    tokenValidity: 86400
+    rememberDays: 30
+    audience: Fiv
+    issuer: Auths
+    subject: JWT Token

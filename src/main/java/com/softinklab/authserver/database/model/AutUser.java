@@ -61,4 +61,12 @@ public class AutUser {
     @Basic
     @Column(name = "SMS_BLOCKED")
     private Boolean smsBlocked = false;
+
+    @Basic
+    @Column(name = "ROLES")
+    private String roles;
+
+    @Basic
+    @Column(name = "PERMISSIONS")
+    private String permissions;
 }

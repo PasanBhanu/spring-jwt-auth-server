@@ -7,4 +7,5 @@ import lombok.Data;
 public class LoginResponse extends BaseResponse {
     private String accessToken;
     private String rememberToken;
+    private String userData;
 }

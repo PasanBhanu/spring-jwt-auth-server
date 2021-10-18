@@ -6,8 +6,11 @@ import lombok.Data;
 public class LoginRequest {
     private String username;
     private String password;
-    private String appId;
+    private Integer appId;
     private Boolean rememberMe;
-    private String deviceType;
-    private String sessionId;
+    private String browser;
+    private String os;
+    private String deviceName;
+    private String deviceHash;      // Browser + OS + Device + Vendor + CPU
+
 }

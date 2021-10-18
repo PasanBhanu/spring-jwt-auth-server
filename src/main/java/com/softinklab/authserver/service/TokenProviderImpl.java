@@ -1,87 +1,101 @@
 package com.softinklab.authserver.service;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtParser;
-import io.jsonwebtoken.Jwts;
+import com.softinklab.authserver.config.TokenConfig;
+import com.softinklab.authserver.database.model.AutSession;
+import com.softinklab.authserver.database.model.AutUser;
+import com.softinklab.authserver.database.repository.SessionRepository;
+import com.softinklab.authserver.exception.custom.ServiceException;
+import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
+import io.jsonwebtoken.impl.DefaultJwtBuilder;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.GCMParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import javax.xml.bind.DatatypeConverter;
+import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.UUID;
 
-public class TokenProviderImpl implements TokenProvider{
-    @Value("${jwt.token.validity}:1000")
-    public long TOKEN_VALIDITY;
+@Slf4j
+@Service
+public class TokenProviderImpl implements TokenProvider {
 
-    @Value("${jwt.signing.key}:TEST")
-    public String SIGNING_KEY;
+    private final SessionRepository sessionRepository;
+    private final TokenConfig tokenConfig;
+    private final SecureRandom secureRandom = new SecureRandom();
 
-    @Value("${jwt.authorities.key}:OK")
-    public String AUTHORITIES_KEY;
-
-//    public String getUsernameFromToken(String token) {
-//        return getClaimFromToken(token, Claims::getSubject);
-//    }
-//
-//    public Date getExpirationDateFromToken(String token) {
-//        return getClaimFromToken(token, Claims::getExpiration);
-//    }
-//
-//    public <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
-//        final Claims claims = getAllClaimsFromToken(token);
-//        return claimsResolver.apply(claims);
-//    }
-
-    private Claims getAllClaimsFromToken(String token) {
-        return Jwts.parser()
-                .setSigningKey(SIGNING_KEY)
-                .parseClaimsJws(token)
-                .getBody();
+    public TokenProviderImpl(SessionRepository sessionRepository, TokenConfig tokenConfig) {
+        this.sessionRepository = sessionRepository;
+        this.tokenConfig = tokenConfig;
     }
 
-//    private Boolean isTokenExpired(String token) {
-//        final Date expiration = getExpirationDateFromToken(token);
-//
-//        return expiration.before(new Date());
-//    }
+    public String generateJwtToken(AutUser user, Boolean rememberMe) {
+        log.info("Generate Token : {}", user);
 
-    public String generateToken(Authentication authentication) {
-        String authorities = authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining(","));
+        Long tokenValidity = this.tokenConfig.getTokenValidity();
+        if (rememberMe) {
+            tokenValidity *= this.tokenConfig.getRememberDays();
+        }
 
-        return Jwts.builder()
-                .setSubject(authentication.getName())
-                .claim(AUTHORITIES_KEY, authorities)
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + TOKEN_VALIDITY*1000))
-                .signWith(SignatureAlgorithm.HS256, SIGNING_KEY)
-                .compact();
+        HashMap<String, Object> claims = new HashMap();
+        claims.put("user_id", user.getUserId().toString());
+        claims.put("username", user.getUsername());
+        claims.put("first_name", user.getFirstName());
+        claims.put("last_name", user.getLastName());
+        claims.put("roles", user.getRoles());
+        claims.put("permissions", user.getPermissions());
+
+        JwtBuilder jwtBuilder = new DefaultJwtBuilder();
+        jwtBuilder.setClaims(claims);
+        jwtBuilder.setExpiration(new Date(System.currentTimeMillis() + tokenValidity));
+        jwtBuilder.setIssuedAt(new Date(System.currentTimeMillis()));
+        jwtBuilder.setSubject(this.tokenConfig.getSubject());
+        jwtBuilder.setIssuer(this.tokenConfig.getIssuer());
+        jwtBuilder.setAudience(this.tokenConfig.getAudience());
+        jwtBuilder.signWith(SignatureAlgorithm.HS256, this.tokenConfig.getAuthKey().getBytes(StandardCharsets.UTF_8));
+        String jwtToken = jwtBuilder.compact();
+
+        log.info("Token Generated : " + jwtToken);
+
+        return jwtToken;
     }
 
-//    public Boolean validateToken(String token, UserDetails userDetails) {
-//        final String username = getUsernameFromToken(token);
-//        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
-//    }
+    public String cipherToken(String token) {
+        try {
+            byte[] key = this.tokenConfig.getSecretKey().getBytes();
+            byte[] nonce = new byte[12];
+            this.secureRandom.nextBytes(nonce);
+            SecretKey aesKey = new SecretKeySpec(key, 0, key.length, "AES");
+            Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+            GCMParameterSpec spec = new GCMParameterSpec(128, nonce);
+            cipher.init(1, aesKey, spec);
+            byte[] aad = new byte[32];
+            this.secureRandom.nextBytes(aad);
+            cipher.updateAAD(aad);
+            byte[] cipheredToken = cipher.doFinal(token.getBytes(StandardCharsets.UTF_8));
+            return DatatypeConverter.printHexBinary(cipheredToken);
+        } catch (Exception ex) {
+            log.error("Token Cipher Failed. " + ex.getMessage());
+            ArrayList<String> errors = new ArrayList();
+            errors.add("Token generation failed");
+            throw new ServiceException(500, HttpStatus.INTERNAL_SERVER_ERROR, "Token encryption failed", errors);
+        }
+    }
 
-//    UsernamePasswordAuthenticationToken getAuthenticationToken(final String token, final Authentication existingAuth, final UserDetails userDetails) {
-//
-//        final JwtParser jwtParser = Jwts.parser().setSigningKey(SIGNING_KEY);
-//
-//        final Jws<Claims> claimsJws = jwtParser.parseClaimsJws(token);
-//
-//        final Claims claims = claimsJws.getBody();
-//
-//        final Collection<? extends GrantedAuthority> authorities =
-//                Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
-//                        .map(SimpleGrantedAuthority::new)
-//                        .collect(Collectors.toList());
-//
-//        return new UsernamePasswordAuthenticationToken(userDetails, "", authorities);
-//    }
+    public String generateSession(AutUser user, AutSession session) {
+        UUID uuid = UUID.randomUUID();
+        String rememberToken = uuid + ":" + user.getUserId();
+        String cipheredRememberToken = cipherToken(rememberToken);
+        session.setRememberToken(cipheredRememberToken);
+        this.sessionRepository.save(session);
+        return cipheredRememberToken;
+    }
 }

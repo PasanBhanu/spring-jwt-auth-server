@@ -1,6 +1,7 @@
 package com.softinklab.authserver.exception;
 
 import com.softinklab.authserver.exception.custom.DatabaseValidationException;
+import com.softinklab.authserver.exception.custom.ServiceException;
 import com.softinklab.authserver.rest.ErrorResponse;
 import com.softinklab.authserver.rest.validation.ValidationError;
 import com.softinklab.authserver.rest.validation.ValidationErrorResponse;
@@ -37,6 +38,12 @@ public class DefaultExceptionHandler {
     @ExceptionHandler(DatabaseValidationException.class)
     protected <T extends ErrorResponse> ResponseEntity<T> handleDatabaseValidationException(DatabaseValidationException ex) {
         ValidationErrorResponse response = new ValidationErrorResponse(ex.getStatus(), ex.getMessage(), ex.getValidationErrors());
+        return new ResponseEntity<T>((T) response, ex.getHttpStatus());
+    }
+
+    @ExceptionHandler(ServiceException.class)
+    protected <T extends ErrorResponse> ResponseEntity<T> handleServiceException(ServiceException ex) {
+        ErrorResponse response = new ErrorResponse(ex.getStatus(), ex.getMessage(), ex.getErrors());
         return new ResponseEntity<T>((T) response, ex.getHttpStatus());
     }
 }
