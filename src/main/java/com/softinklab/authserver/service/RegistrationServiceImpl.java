@@ -1,5 +1,6 @@
 package com.softinklab.authserver.service;
 
+import com.softinklab.authserver.config.AuthServerConfig;
 import com.softinklab.authserver.database.model.AutUser;
 import com.softinklab.authserver.database.repository.UserRepository;
 import com.softinklab.authserver.exception.custom.DatabaseValidationException;
@@ -22,10 +23,12 @@ public class RegistrationServiceImpl implements RegistrationService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AuthServerConfig authServerConfig;
 
-    public RegistrationServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public RegistrationServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthServerConfig authServerConfig) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.authServerConfig = authServerConfig;
     }
 
     @Override
@@ -43,9 +46,20 @@ public class RegistrationServiceImpl implements RegistrationService {
         newUser.setFirstName(payload.getFirstName());
         newUser.setLastName(payload.getLastName());
         newUser.setConfirmationToken(UUID.randomUUID().toString());
+        if (this.authServerConfig.getRegistration().getVerification()) {
+            newUser.setEmailConfirmedAt(new Date());
+        }
         newUser = userRepository.save(newUser);
 
         RegistrationResponse response = new RegistrationResponse();
+        response.setUserId(newUser.getUserId());
+        response.setUsername(newUser.getUsername());
+        response.setRegistrationSuccess(true);
+        if (this.authServerConfig.getRegistration().getVerification()) {
+            response.setVerificationRequired(true);
+        } else {
+            response.setVerificationRequired(false);
+        }
 
         return response;
     }

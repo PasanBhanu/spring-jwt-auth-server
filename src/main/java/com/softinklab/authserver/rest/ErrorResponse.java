@@ -4,16 +4,17 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
 public class ErrorResponse extends BaseResponse {
 
-    public ErrorResponse(Integer status, String message, ArrayList<String> errors) {
+    public ErrorResponse(Integer status, String message, List<String> errors) {
         this.setStatus(status);
         this.setMessage(message);
         this.errors = errors;
     }
 
-    private ArrayList<String> errors = new ArrayList<>();
+    private List<String> errors = new ArrayList<>();
 }

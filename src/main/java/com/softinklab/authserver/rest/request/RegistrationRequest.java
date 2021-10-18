@@ -27,4 +27,31 @@ public class RegistrationRequest {
     @NotBlank
     @Size(max = 255)
     private String lastName;
+
+    @Size(max = 255)
+    private String addressLine1;
+    @Size(max = 255)
+    private String addressLine2;
+    @Size(max = 255)
+    private String state;
+    @Size(max = 255)
+    private String city;
+    @Size(max = 50)
+    private String postalCode;
+    @Size(max = 100)
+    private String country;
+
+    @Size(max = 10)
+    private String sex;
+    @Size(max = 10)
+    private String prefix;
+
+    @Size(max = 50)
+    private String mobileNo;
+    @Size(max = 50)
+    private String vatNo;
+    @Size(max = 20)
+    private String nicNo;
+    @Size(max = 255)
+    private String companyName;
 }

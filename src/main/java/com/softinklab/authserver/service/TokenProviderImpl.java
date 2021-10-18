@@ -84,9 +84,7 @@ public class TokenProviderImpl implements TokenProvider {
             return DatatypeConverter.printHexBinary(cipheredToken);
         } catch (Exception ex) {
             log.error("Token Cipher Failed. " + ex.getMessage());
-            ArrayList<String> errors = new ArrayList();
-            errors.add("Token generation failed");
-            throw new ServiceException(500, HttpStatus.INTERNAL_SERVER_ERROR, "Token encryption failed", errors);
+            throw new ServiceException(500, HttpStatus.INTERNAL_SERVER_ERROR, "Token encryption failed.", Collections.singletonList("Token generation failed."));
         }
     }
 

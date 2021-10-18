@@ -20,11 +20,11 @@ spring:
 
 authserver:
   registration:
-    enable: true
-    verification: false
+    enable: false
+    verification: true
   login:
     verification: false
-    2fa: false
+    twoFactorEnable: false
   jwt:
     secretKey: 1234567890123456
     authKey: 1234567890123456
