@@ -5,7 +5,7 @@ import com.softinklab.authentication.database.model.AutSession;
 import com.softinklab.authentication.database.model.AutUser;
 import com.softinklab.authentication.database.repository.JwtAppRepository;
 import com.softinklab.authentication.database.repository.UserRepository;
-import com.softinklab.authentication.exception.custom.DatabaseValidationException;
+import com.softinklab.rest.exception.DatabaseValidationException;
 import com.softinklab.authentication.rest.request.LoginRequest;
 import com.softinklab.authentication.rest.response.LoginResponse;
 import org.springframework.http.HttpStatus;

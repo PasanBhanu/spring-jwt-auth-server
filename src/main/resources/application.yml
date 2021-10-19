@@ -18,11 +18,12 @@ spring:
   mail:
     host: 'smtp.mailtrap.io'
     port: 587
-    username: '92243d633ca02a'
-    password: '13e5cd0bd8e367'
+    username: 'a6df31fac163a7'
+    password: '3c25f3e6dc6e28'
     from: 'info@authserver.com'
     fromName: 'Auth Server'
     sender: 'Auth Server Team'
+    application-name: 'Auth Server Application'
     properties:
       mail:
         smtp:
@@ -30,10 +31,16 @@ spring:
           connectiontimeout: 5000
           timeout: 5000
           writetimeout: 5000
+  freemarker:
+    template-loader-path: 'classpath:/templates/emails/'
+
+application:
+  name: 'My Best App'
+  url: 'http://localhost:9000'
 
 authserver:
   registration:
-    enable: false
+    enable: true
     verification: true
   login:
     verification: false

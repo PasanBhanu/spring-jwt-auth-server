@@ -1,4 +1,4 @@
-package com.softinklab.authentication.exception.custom;
+package com.softinklab.rest.exception;
 
 import com.softinklab.rest.response.validation.ValidationError;
 import lombok.AllArgsConstructor;

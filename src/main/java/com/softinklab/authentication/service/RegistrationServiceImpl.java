@@ -3,20 +3,21 @@ package com.softinklab.authentication.service;
 import com.softinklab.authentication.config.AuthServerConfig;
 import com.softinklab.authentication.database.model.AutUser;
 import com.softinklab.authentication.database.repository.UserRepository;
-import com.softinklab.authentication.exception.custom.DatabaseValidationException;
+import com.softinklab.notification.model.DefaultEmail;
+import com.softinklab.notification.model.Email;
+import com.softinklab.notification.service.NotificationService;
+import com.softinklab.rest.exception.DatabaseValidationException;
 import com.softinklab.rest.response.BaseResponse;
 import com.softinklab.authentication.rest.request.RegistrationRequest;
 import com.softinklab.authentication.rest.request.ValidateEmailRequest;
 import com.softinklab.authentication.rest.response.RegistrationResponse;
 import com.softinklab.rest.response.validation.ValidationError;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class RegistrationServiceImpl implements RegistrationService {
@@ -24,11 +25,16 @@ public class RegistrationServiceImpl implements RegistrationService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthServerConfig authServerConfig;
+    private final NotificationService notificationService;
 
-    public RegistrationServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthServerConfig authServerConfig) {
+    @Value("${application.url}")
+    private String applicationUrl;
+
+    public RegistrationServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthServerConfig authServerConfig, NotificationService notificationService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authServerConfig = authServerConfig;
+        this.notificationService = notificationService;
     }
 
     @Override
@@ -56,6 +62,7 @@ public class RegistrationServiceImpl implements RegistrationService {
         response.setUsername(newUser.getUsername());
         response.setRegistrationSuccess(true);
         if (this.authServerConfig.getRegistration().getVerification()) {
+            this.notificationService.sendEmail(generateValidationEmail(newUser));
             response.setVerificationRequired(true);
         } else {
             response.setVerificationRequired(false);
@@ -78,5 +85,18 @@ public class RegistrationServiceImpl implements RegistrationService {
             throw new DatabaseValidationException(400, HttpStatus.BAD_REQUEST, "User already confirmed the email");
         }
         throw new DatabaseValidationException(401, HttpStatus.NOT_FOUND, "Invalid validation link. Please check your email and click on the newest validation mail link.");
+    }
+
+    private Email generateValidationEmail(AutUser user) {
+        DefaultEmail email = new DefaultEmail();
+        email.initialise(this.notificationService.getEmailConfig());
+        email.setTo(user.getUsername());
+        email.setSubject("Verify Your Email");
+        email.setGreeting("Hi " + user.getFirstName());
+        email.setButtonText("Verify My Email");
+        email.setButtonUrl(this.applicationUrl + "/verify-email/" + user.getConfirmationToken());
+        email.setPreParagraphs(Collections.singletonList("We excited to have you get started. First, you need to verify your email address. Just press the button below."));
+        email.setPostParagraphs(Collections.singletonList("If that doesn't work, copy and paste the following link in your browser. <br>" + this.applicationUrl + "/verify-email/" + user.getConfirmationToken()));
+        return email;
     }
 }

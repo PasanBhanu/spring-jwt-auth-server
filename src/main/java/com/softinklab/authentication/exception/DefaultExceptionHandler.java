@@ -1,7 +1,7 @@
 package com.softinklab.authentication.exception;
 
 import com.softinklab.authentication.exception.custom.AuthenticationFailedException;
-import com.softinklab.authentication.exception.custom.DatabaseValidationException;
+import com.softinklab.rest.exception.DatabaseValidationException;
 import com.softinklab.rest.exception.ServiceException;
 import com.softinklab.rest.response.ErrorResponse;
 import com.softinklab.rest.response.validation.ValidationError;

@@ -1,30 +1,31 @@
 package com.softinklab.notification.model;
 
 import lombok.Data;
-import org.springframework.beans.factory.annotation.Value;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Data
-public class DefaultEmail {
-    @Value("${spring.mail.from}")
-    private String defaultFrom;
-    @Value("${spring.mail.from}")
-    private String defaultFromName;
-    @Value("${spring.mail.sender}")
-    private String defaultSender;
+public class DefaultEmail extends Email {
+    private String buttonText = null;
+    private String buttonUrl = null;
+    private List<String> preParagraphs = new ArrayList<>();
+    private List<String> postParagraphs = new ArrayList<>();
 
-    private String to;
-    private String from = defaultFrom;
-    private String fromName = defaultFromName;
-    private String replyTo = from;
-    private String replyToName = fromName;
-    private String subject;
+    @Override
+    public Map<String, Object> getModel() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("greeting", this.greeting);
+        map.put("sender", this.sender);
+        map.put("buttonText", this.buttonText);
+        map.put("buttonUrl", this.buttonUrl);
+        map.put("preParagraphs", this.preParagraphs);
+        map.put("postParagraphs", this.postParagraphs);
+        map.put("year", this.year);
+        map.put("applicationName", this.applicationName);
 
-    private String greeting;
-    private String sender = defaultSender;
-    private String buttonText;
-    private String buttonUrl;
-    private List<String> preParagraphs;
-    private List<String> postParagraphs;
+        return map;
+    }
 }
