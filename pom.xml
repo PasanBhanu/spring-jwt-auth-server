@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.softinklab</groupId>
-    <artifactId>authserver</artifactId>
+    <artifactId>jsb</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>authserver</name>
-    <description>authserver</description>
+    <name>common</name>
+    <description>Java Spring Boot Common for Softink Lab Projects</description>
     <properties>
         <java.version>1.8</java.version>
     </properties>
