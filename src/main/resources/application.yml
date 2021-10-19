@@ -6,17 +6,30 @@ spring:
     username: sa
     password:
     url: jdbc:h2:file:./data/test
-
   jpa:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: update
-
   h2:
     console:
       enabled: true
+  mail:
+    host: 'smtp.mailtrap.io'
+    port: 587
+    username: '92243d633ca02a'
+    password: '13e5cd0bd8e367'
+    from: 'info@authserver.com'
+    fromName: 'Auth Server'
+    sender: 'Auth Server Team'
+    properties:
+      mail:
+        smtp:
+          auth: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
 
 authserver:
   registration:
