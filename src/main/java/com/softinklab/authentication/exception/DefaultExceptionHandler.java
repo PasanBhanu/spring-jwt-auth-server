@@ -32,25 +32,25 @@ public class DefaultExceptionHandler {
             validationErrors.add(new ValidationError(((FieldError) error).getField(), error.getDefaultMessage()));
         });
 
-        ValidationErrorResponse response = new ValidationErrorResponse(400, "Request validation failed.", validationErrors);
+        ValidationErrorResponse response = new ValidationErrorResponse(400, "Request validation failed.", validationErrors, null);
         return new ResponseEntity<T>((T) response, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(DatabaseValidationException.class)
     protected <T extends ErrorResponse> ResponseEntity<T> handleDatabaseValidationException(DatabaseValidationException ex) {
-        ValidationErrorResponse response = new ValidationErrorResponse(ex.getStatus(), ex.getMessage(), ex.getValidationErrors());
+        ValidationErrorResponse response = new ValidationErrorResponse(ex.getStatus(), ex.getMessage(), ex.getValidationErrors(), ex.getActionCode().label());
         return new ResponseEntity<T>((T) response, ex.getHttpStatus());
     }
 
     @ExceptionHandler(ServiceException.class)
     protected <T extends ErrorResponse> ResponseEntity<T> handleServiceException(ServiceException ex) {
-        ErrorResponse response = new ErrorResponse(ex.getStatus(), ex.getMessage(), ex.getErrors());
+        ErrorResponse response = new ErrorResponse(ex.getStatus(), ex.getMessage(), ex.getErrors(), ex.getActionCode().label());
         return new ResponseEntity<T>((T) response, ex.getHttpStatus());
     }
 
     @ExceptionHandler(AuthenticationFailedException.class)
     protected <T extends ErrorResponse> ResponseEntity<T> handleServiceException(AuthenticationFailedException ex) {
-        ErrorResponse response = new ErrorResponse(ex.getStatus(), ex.getMessage(), ex.getErrors());
+        ErrorResponse response = new ErrorResponse(ex.getStatus(), ex.getMessage());
         return new ResponseEntity<T>((T) response, ex.getHttpStatus());
     }
 }

@@ -9,4 +9,6 @@ public interface UserRepository extends JpaRepository<AutUser, Integer> {
     Optional<AutUser> findByUsernameEqualsIgnoreCase(String username);
 
     Optional<AutUser> findByConfirmationToken(String token);
+
+    Optional<AutUser> findByUsernameEqualsIgnoreCaseAndPassword(String username, String password);
 }

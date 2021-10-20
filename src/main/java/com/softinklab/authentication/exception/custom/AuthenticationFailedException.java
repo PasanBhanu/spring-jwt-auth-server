@@ -14,6 +14,4 @@ public class AuthenticationFailedException extends RuntimeException {
     private Integer status = 401;
     private HttpStatus httpStatus = HttpStatus.UNAUTHORIZED;
     private String message = "Unauthorised";
-
-    private ArrayList<String> errors = new ArrayList<>();
 }

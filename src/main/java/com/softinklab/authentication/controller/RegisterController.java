@@ -2,6 +2,7 @@ package com.softinklab.authentication.controller;
 
 import com.softinklab.authentication.config.AuthServerConfig;
 import com.softinklab.authentication.rest.request.ResendVerificationEmailRequest;
+import com.softinklab.rest.action.Authentication;
 import com.softinklab.rest.exception.ServiceException;
 import com.softinklab.rest.response.BaseResponse;
 import com.softinklab.authentication.rest.request.RegistrationRequest;
@@ -33,7 +34,7 @@ public class RegisterController {
     @RequestMapping(method = RequestMethod.POST, path = "/register", produces = "application/json")
     public ResponseEntity<RegistrationResponse> register(@Valid @RequestBody RegistrationRequest payload) {
         if (!this.authServerConfig.getRegistration().getEnable()) {
-            throw new ServiceException(401, HttpStatus.NOT_FOUND, "User registration disabled.", Collections.singletonList("User registration disabled."));
+            throw new ServiceException(401, HttpStatus.NOT_FOUND, "User registration disabled.", Collections.singletonList("User registration disabled."), Authentication.REGISTRATION_DISABLED);
         }
 
         return ResponseEntity.ok(this.registrationService.register(payload));

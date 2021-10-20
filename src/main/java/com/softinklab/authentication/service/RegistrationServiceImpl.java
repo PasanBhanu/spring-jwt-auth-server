@@ -7,6 +7,7 @@ import com.softinklab.authentication.rest.request.ResendVerificationEmailRequest
 import com.softinklab.notification.model.DefaultEmail;
 import com.softinklab.notification.model.Email;
 import com.softinklab.notification.service.NotificationService;
+import com.softinklab.rest.action.Authentication;
 import com.softinklab.rest.exception.DatabaseValidationException;
 import com.softinklab.rest.response.BaseResponse;
 import com.softinklab.authentication.rest.request.RegistrationRequest;
@@ -99,7 +100,7 @@ public class RegistrationServiceImpl implements RegistrationService {
 
             throw new DatabaseValidationException(400, HttpStatus.BAD_REQUEST, "User already confirmed the email.");
         }
-        throw new DatabaseValidationException(401, HttpStatus.NOT_FOUND, "Invalid validation link. Please check your email and click on the newest validation mail link.");
+        throw new DatabaseValidationException(401, HttpStatus.NOT_FOUND, "Invalid validation link. Please check your email and click on the newest validation mail link.", Authentication.RESEND_VERIFICATION_EMAIL);
     }
 
     @Override

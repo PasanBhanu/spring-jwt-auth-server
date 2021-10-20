@@ -10,23 +10,23 @@ import org.springframework.http.HttpStatus;
 import java.util.List;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class ServiceException extends RuntimeException {
-    private Integer status = 500;
-    private HttpStatus httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+@AllArgsConstructor
+public class LogicViolationException extends RuntimeException{
+    private Integer status = 406;
+    private HttpStatus httpStatus = HttpStatus.NOT_ACCEPTABLE;
     private String message = "Internal server error";
     private List<String> errors = null;
     private Action actionCode = Default.NULL;
 
-    public ServiceException(Integer status, HttpStatus httpStatus, String message, List<String> errors) {
+    public LogicViolationException(Integer status, HttpStatus httpStatus, String message, List<String> errors) {
         this.status = status;
         this.httpStatus = httpStatus;
         this.message = message;
         this.errors = errors;
     }
 
-    public ServiceException(Integer status, HttpStatus httpStatus, String message, Action actionCode) {
+    public LogicViolationException(Integer status, HttpStatus httpStatus, String message, Action actionCode) {
         this.status = status;
         this.httpStatus = httpStatus;
         this.message = message;

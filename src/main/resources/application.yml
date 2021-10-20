@@ -43,13 +43,8 @@ authserver:
     enable: true
     verification: true
   login:
-    verification: false
+    verification: true
     twoFactorEnable: false
   jwt:
     secretKey: 1234567890123456
     authKey: 1234567890123456
-    tokenValidity: 86400
-    rememberDays: 30
-    audience: Fiv
-    issuer: Auths
-    subject: JWT Token

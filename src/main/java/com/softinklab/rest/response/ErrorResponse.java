@@ -9,6 +9,15 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 public class ErrorResponse extends BaseResponse {
+    protected String actionCode = null;
+    private List<String> errors = null;
+
+    public ErrorResponse(Integer status, String message, List<String> errors, String actionCode) {
+        this.setStatus(status);
+        this.setMessage(message);
+        this.errors = errors;
+        this.actionCode = actionCode;
+    }
 
     public ErrorResponse(Integer status, String message, List<String> errors) {
         this.setStatus(status);
@@ -16,5 +25,9 @@ public class ErrorResponse extends BaseResponse {
         this.errors = errors;
     }
 
-    private List<String> errors = new ArrayList<>();
+    public ErrorResponse(Integer status, String message) {
+        this.setStatus(status);
+        this.setMessage(message);
+        this.errors = errors;
+    }
 }

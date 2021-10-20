@@ -1,6 +1,7 @@
 package com.softinklab.authentication.service;
 
 import com.softinklab.authentication.config.TokenConfig;
+import com.softinklab.authentication.database.model.AutJwtApp;
 import com.softinklab.authentication.database.model.AutSession;
 import com.softinklab.authentication.database.model.AutUser;
 import com.softinklab.authentication.database.repository.SessionRepository;
@@ -35,12 +36,12 @@ public class TokenProviderImpl implements TokenProvider {
         this.tokenConfig = tokenConfig;
     }
 
-    public String generateJwtToken(AutUser user, Boolean rememberMe) {
+    public String generateJwtToken(AutUser user, AutJwtApp app, Boolean rememberMe) {
         log.info("Generate Token : {}", user);
 
-        Long tokenValidity = this.tokenConfig.getTokenValidity();
+        Integer tokenValidity = app.getTokenValidity();
         if (rememberMe) {
-            tokenValidity *= this.tokenConfig.getRememberDays();
+            tokenValidity *= app.getRememberDays();
         }
 
         HashMap<String, Object> claims = new HashMap();
@@ -57,9 +58,9 @@ public class TokenProviderImpl implements TokenProvider {
         jwtBuilder.setClaims(claims);
         jwtBuilder.setExpiration(new Date(System.currentTimeMillis() + tokenValidity));
         jwtBuilder.setIssuedAt(new Date(System.currentTimeMillis()));
-        jwtBuilder.setSubject(this.tokenConfig.getSubject());
-        jwtBuilder.setIssuer(this.tokenConfig.getIssuer());
-        jwtBuilder.setAudience(this.tokenConfig.getAudience());
+        jwtBuilder.setSubject(app.getSubject());
+        jwtBuilder.setIssuer(app.getIssuer());
+        jwtBuilder.setAudience(app.getAudience());
         jwtBuilder.signWith(SignatureAlgorithm.HS256, this.tokenConfig.getAuthKey().getBytes(StandardCharsets.UTF_8));
         String jwtToken = jwtBuilder.compact();
 
@@ -105,7 +106,7 @@ public class TokenProviderImpl implements TokenProvider {
             log.error("Error parsing JWT token. ", ex.getMessage());
             ArrayList<String> errors = new ArrayList();
             errors.add("JWT token parsing failed");
-            throw new AuthenticationFailedException(401, HttpStatus.UNAUTHORIZED, "JWT token parsing failed", errors);
+            throw new AuthenticationFailedException(401, HttpStatus.UNAUTHORIZED, "JWT token parsing failed");
         }
     }
 

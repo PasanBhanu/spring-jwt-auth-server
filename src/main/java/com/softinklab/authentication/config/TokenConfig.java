@@ -10,9 +10,4 @@ import org.springframework.stereotype.Component;
 public class TokenConfig {
     private String secretKey;
     private String authKey;
-    private Long tokenValidity;
-    private Integer rememberDays;
-    private String audience;
-    private String issuer;
-    private String subject;
 }
