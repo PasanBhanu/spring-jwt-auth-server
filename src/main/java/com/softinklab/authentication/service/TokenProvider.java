@@ -20,5 +20,7 @@ public interface TokenProvider {
 
     void forceValidateToken(String token);
 
+    AutSession validateTokenWithDeviceHashAndUserId(String token, String rememberToken, String deviceHash);
+
     String decipherToken(String token);
 }

@@ -3,10 +3,12 @@ package com.softinklab.authentication.controller;
 
 import com.softinklab.authentication.config.TokenConfig;
 import com.softinklab.authentication.rest.request.LoginRequest;
+import com.softinklab.authentication.rest.request.LogoutRequest;
 import com.softinklab.authentication.rest.request.TokenRefreshRequest;
 import com.softinklab.authentication.rest.response.LoginResponse;
 import com.softinklab.authentication.rest.response.TokenRefreshResponse;
 import com.softinklab.authentication.service.AuthenticationService;
+import com.softinklab.rest.response.BaseResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -45,5 +47,10 @@ public class LoginController {
     @RequestMapping(method = RequestMethod.POST, path = "/refresh", produces = "application/json")
     public ResponseEntity<TokenRefreshResponse> refresh(@Valid @RequestBody TokenRefreshRequest payload) {
         return ResponseEntity.ok(this.authenticationService.refresh(payload));
+    }
+
+    @RequestMapping(method = RequestMethod.POST, path = "/logout", produces = "application/json")
+    public ResponseEntity<BaseResponse> refresh(@Valid @RequestBody LogoutRequest payload) {
+        return ResponseEntity.ok(this.authenticationService.logout(payload));
     }
 }

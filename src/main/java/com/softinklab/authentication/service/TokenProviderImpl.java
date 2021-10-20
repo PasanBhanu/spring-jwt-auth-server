@@ -7,6 +7,8 @@ import com.softinklab.authentication.database.model.AutUser;
 import com.softinklab.authentication.database.repository.SessionRepository;
 import com.softinklab.authentication.exception.custom.AuthenticationFailedException;
 import com.softinklab.authentication.model.UserPrincipal;
+import com.softinklab.rest.action.Authentication;
+import com.softinklab.rest.exception.DatabaseValidationException;
 import com.softinklab.rest.exception.ServiceException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.impl.DefaultJwtBuilder;
@@ -135,6 +137,29 @@ public class TokenProviderImpl implements TokenProvider {
     @Override
     public void forceValidateToken(String token) {
 
+    }
+
+    @Override
+    public AutSession validateTokenWithDeviceHashAndUserId(String token, String rememberToken, String deviceHash) {
+        Jws<Claims> claims = validateToken(token);
+        UserPrincipal user = getUserPrincipalFromClaims(claims);
+
+        String decipherRememberToken = decipherToken(rememberToken);
+        String[] tokenContent = decipherRememberToken.split(":");
+        if (tokenContent.length != 2){
+            throw new AuthenticationFailedException(401, HttpStatus.UNAUTHORIZED, "Remember token not recognised. Invalid refresh attempt.");
+        }
+        String userIdFromRememberToken = tokenContent[1];
+
+        if (Integer.parseInt(userIdFromRememberToken) != user.getUserId()) {
+            throw new AuthenticationFailedException(401, HttpStatus.UNAUTHORIZED, "Remember token not recognised. Invalid login attempt.");
+        }
+        Optional<AutSession> session = this.sessionRepository.findByUserId_UserIdAndRememberTokenAndTokenAndDeviceHash(user.getUserId(), decipherRememberToken, token, deviceHash);
+        if (!session.isPresent()) {
+            throw new DatabaseValidationException(401, HttpStatus.UNAUTHORIZED, "Invalid session! Operation cancelled.", Authentication.LOGIN);
+        }
+
+        return session.get();
     }
 
     @Override

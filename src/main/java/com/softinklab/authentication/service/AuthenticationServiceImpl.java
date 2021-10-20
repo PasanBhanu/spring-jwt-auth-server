@@ -7,18 +7,16 @@ import com.softinklab.authentication.database.model.AutUser;
 import com.softinklab.authentication.database.repository.JwtAppRepository;
 import com.softinklab.authentication.database.repository.SessionRepository;
 import com.softinklab.authentication.database.repository.UserRepository;
-import com.softinklab.authentication.exception.custom.AuthenticationFailedException;
-import com.softinklab.authentication.model.UserPrincipal;
 import com.softinklab.authentication.rest.request.LoginRequest;
+import com.softinklab.authentication.rest.request.LogoutRequest;
 import com.softinklab.authentication.rest.request.TokenRefreshRequest;
 import com.softinklab.authentication.rest.response.LoginResponse;
 import com.softinklab.authentication.rest.response.TokenRefreshResponse;
 import com.softinklab.rest.action.Authentication;
 import com.softinklab.rest.exception.DatabaseValidationException;
 import com.softinklab.rest.exception.LogicViolationException;
+import com.softinklab.rest.response.BaseResponse;
 import com.softinklab.rest.response.validation.ValidationError;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -88,30 +86,18 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     public TokenRefreshResponse refresh(TokenRefreshRequest payload) {
-        Jws<Claims> claims = this.tokenProvider.validateToken(payload.getToken());
-        UserPrincipal user = this.tokenProvider.getUserPrincipalFromClaims(claims);
-
-        String decipherRememberToken = this.tokenProvider.decipherToken(payload.getRememberToken());
-        String[] tokenContent = decipherRememberToken.split(":");
-        if (tokenContent.length != 2){
-            throw new AuthenticationFailedException(401, HttpStatus.UNAUTHORIZED, "Remember token not recognised. Invalid refresh attempt.");
-        }
-        String userIdFromRememberToken = tokenContent[1];
-
-        if (Integer.parseInt(userIdFromRememberToken) != user.getUserId()) {
-            throw new AuthenticationFailedException(401, HttpStatus.UNAUTHORIZED, "Remember token not recognised. Invalid login attempt.");
-        }
-        Optional<AutSession> session = this.sessionRepository.findByUserId_UserIdAndRememberTokenAndTokenAndDeviceHash(user.getUserId(), decipherRememberToken, payload.getToken(), payload.getDeviceHash());
-        if (!session.isPresent()) {
-            throw new DatabaseValidationException(401, HttpStatus.UNAUTHORIZED, "Invalid session! User already logged out. Please login again.", Authentication.LOGIN);
-        }
-
-        String jwtToken = this.tokenProvider.generateJwtToken(session.get().getUserId(), session.get().getAppId(), session.get().getRememberMe());
-
-        session.get().setToken(jwtToken);
-        this.sessionRepository.save(session.get());
-
+        AutSession session = this.tokenProvider.validateTokenWithDeviceHashAndUserId(payload.getToken(), payload.getRememberToken(), payload.getDeviceHash());
+        String jwtToken = this.tokenProvider.generateJwtToken(session.getUserId(), session.getAppId(), session.getRememberMe());
+        session.setToken(jwtToken);
+        this.sessionRepository.save(session);
         return new TokenRefreshResponse(jwtToken);
+    }
+
+    @Override
+    public BaseResponse logout(LogoutRequest payload) {
+        AutSession session = this.tokenProvider.validateTokenWithDeviceHashAndUserId(payload.getToken(), payload.getRememberToken(), payload.getDeviceHash());
+        this.sessionRepository.delete(session);
+        return new BaseResponse(200, "User successfully logged out.");
     }
 
     private AutSession createAutSession(LoginRequest payload, AutJwtApp jwtApp, AutUser loggedInUser, String jwtToken) {
