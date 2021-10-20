@@ -13,10 +13,10 @@ import javax.validation.constraints.Size;
 public class RegistrationRequest {
     @NotNull
     @Size(max = 320)
-    @Email
+    @Email(message = "Please enter a valid email")
     private String username;
-    @NotBlank
-    @Size(min = 5, max = 25)
+    @NotBlank(message = "Password is required")
+    @Size(min = 5, max = 25, message = "Password length should be 5 - 25 length")
     private String password;
     @NotBlank
     private String confirmPassword;
@@ -24,7 +24,7 @@ public class RegistrationRequest {
     @NotBlank(message = "First Name is required")
     @Size(max = 255)
     private String firstName;
-    @NotBlank
+    @NotBlank(message = "Last Name is required")
     @Size(max = 255)
     private String lastName;
 

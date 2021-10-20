@@ -20,7 +20,7 @@ public class Email {
 
     protected String greeting;
     protected String sender;
-    protected Integer year = Calendar.getInstance().get(Calendar.YEAR);
+    protected String year = String.valueOf(Calendar.getInstance().get(Calendar.YEAR));
 
     public Map<String, Object> getModel() {
         return new HashMap<>();

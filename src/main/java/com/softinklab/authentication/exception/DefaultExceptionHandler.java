@@ -32,7 +32,7 @@ public class DefaultExceptionHandler {
             validationErrors.add(new ValidationError(((FieldError) error).getField(), error.getDefaultMessage()));
         });
 
-        ValidationErrorResponse response = new ValidationErrorResponse(400, "Request validation failed", validationErrors);
+        ValidationErrorResponse response = new ValidationErrorResponse(400, "Request validation failed.", validationErrors);
         return new ResponseEntity<T>((T) response, HttpStatus.BAD_REQUEST);
     }
 

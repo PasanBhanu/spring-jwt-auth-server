@@ -1,10 +1,11 @@
 package com.softinklab.authentication.controller;
 
 import com.softinklab.authentication.config.AuthServerConfig;
+import com.softinklab.authentication.rest.request.ResendVerificationEmailRequest;
 import com.softinklab.rest.exception.ServiceException;
 import com.softinklab.rest.response.BaseResponse;
 import com.softinklab.authentication.rest.request.RegistrationRequest;
-import com.softinklab.authentication.rest.request.ValidateEmailRequest;
+import com.softinklab.authentication.rest.request.EmailVerificationRequest;
 import com.softinklab.authentication.rest.response.RegistrationResponse;
 import com.softinklab.authentication.service.RegistrationService;
 import org.springframework.http.HttpStatus;
@@ -38,8 +39,13 @@ public class RegisterController {
         return ResponseEntity.ok(this.registrationService.register(payload));
     }
 
-    @RequestMapping(method = RequestMethod.POST, path = "/validate-email", produces = "application/json")
-    public ResponseEntity<BaseResponse> validateEmail(@Valid @RequestBody ValidateEmailRequest payload) {
-        return ResponseEntity.ok(this.registrationService.validateEmail(payload));
+    @RequestMapping(method = RequestMethod.POST, path = "/verify-email", produces = "application/json")
+    public ResponseEntity<BaseResponse> verifyEmail(@Valid @RequestBody EmailVerificationRequest payload) {
+        return ResponseEntity.ok(this.registrationService.verifyEmail(payload));
+    }
+
+    @RequestMapping(method = RequestMethod.POST, path = "/resend-verification-email", produces = "application/json")
+    public ResponseEntity<BaseResponse> resendEmail(@Valid @RequestBody ResendVerificationEmailRequest payload) {
+        return ResponseEntity.ok(this.registrationService.resendVerificationEmail(payload));
     }
 }
