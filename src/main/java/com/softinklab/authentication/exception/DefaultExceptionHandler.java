@@ -2,6 +2,7 @@ package com.softinklab.authentication.exception;
 
 import com.softinklab.authentication.exception.custom.AuthenticationFailedException;
 import com.softinklab.rest.exception.DatabaseValidationException;
+import com.softinklab.rest.exception.LogicViolationException;
 import com.softinklab.rest.exception.ServiceException;
 import com.softinklab.rest.response.ErrorResponse;
 import com.softinklab.rest.response.validation.ValidationError;
@@ -39,6 +40,12 @@ public class DefaultExceptionHandler {
     @ExceptionHandler(DatabaseValidationException.class)
     protected <T extends ErrorResponse> ResponseEntity<T> handleDatabaseValidationException(DatabaseValidationException ex) {
         ValidationErrorResponse response = new ValidationErrorResponse(ex.getStatus(), ex.getMessage(), ex.getValidationErrors(), ex.getActionCode().label());
+        return new ResponseEntity<T>((T) response, ex.getHttpStatus());
+    }
+
+    @ExceptionHandler(LogicViolationException.class)
+    protected <T extends ErrorResponse> ResponseEntity<T> handleLogicViolationException(LogicViolationException ex) {
+        ErrorResponse response = new ErrorResponse(ex.getStatus(), ex.getMessage(), ex.getErrors(), ex.getActionCode().label());
         return new ResponseEntity<T>((T) response, ex.getHttpStatus());
     }
 

@@ -18,5 +18,7 @@ public interface TokenProvider {
 
     UserPrincipal getUserPrincipalFromClaims(Jws<Claims> claims);
 
-    Boolean forceValidateToken(String token);
+    void forceValidateToken(String token);
+
+    String decipherToken(String token);
 }

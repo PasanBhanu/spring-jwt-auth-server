@@ -48,3 +48,8 @@ authserver:
   jwt:
     secretKey: 1234567890123456
     authKey: 1234567890123456
+    nonce: 123456789012
+    aad: 12345678901234567890123456789012
+    cookieMaxDays: 30
+    path: '/'
+    domain: 'localhost'
