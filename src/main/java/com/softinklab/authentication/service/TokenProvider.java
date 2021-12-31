@@ -14,11 +14,7 @@ public interface TokenProvider {
 
     String generateSession(AutUser user, AutSession session);
 
-    Jws<Claims> validateToken(String token);
-
     UserPrincipal getUserPrincipalFromClaims(Jws<Claims> claims);
-
-    void forceValidateToken(String token);
 
     AutSession validateTokenWithDeviceHashAndUserId(String token, String rememberToken, String deviceHash);
 
